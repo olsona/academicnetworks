@@ -23,17 +23,40 @@ def processXML(infile, reqFields):
 
     # initialize graph
     G = nx.Graph()  # Undirected for the moment
+    
+    # article list
+    articleDict = {}
 
     # iterate through data frame from infile, with all reqfields
     for r in df.iterrows():
         authorInfo, articleInfo = processLine(r, reqFields)
+        doi = articleInfo['doi']
+        articleDict[doi] = articleInfo
+        pacs = articleInfo['pacs']['pacscode']
         for i in authorInfo:
             au = i[0]
             af = i[1]
             if au in G.nodes(): # author is already present
                 pass
             else: # author is not present, and needs to be added
-                pass
+                G.add(au)
+                # add coauthors
+                G.nodes[au] = {'Coauthors':{},
+                                'Affiliations':[af],
+                                'Subjects':[]}
+                for a in authorInfo:
+                    if a != au:
+                        G.nodes[au]['Coauthors'][a] = [doi]     
+                        # Each author node has an attribute called 'Coauthors':
+                        # 'Coauthors' is a dictionary storing the names of all
+                        # coauthors as keys, and lists of dois as values
+                # count each PACS code, 1 per paper
+                if type(pacs) is str: 
+                    G.nodes[au]['Subjects'] = {pacs:1}
+                else:
+                    G.nodes[au]['Subjects'] = {p:1 for p in pacs}
+                
+    return G, articleDict
 
 def processLine(line, reqFields):
     import collections
