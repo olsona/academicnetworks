@@ -1,4 +1,4 @@
-def processXML(infile, pacsCode=-1):
+def coAuthorsXML(infile, pacsCodes=[-1]):
     '''Usage: G = processXML(infile, reqFields)
         infile is a file name (with path as necessary) and must be an XML file.'''
     # imports
@@ -19,50 +19,53 @@ def processXML(infile, pacsCode=-1):
     df = df.dropna(subset=['authgrp'])
 
     # initialize graph
-    G = nx.Graph()  # Undirected for the moment
-
-    # make list of acceptable PACS codes
-    if pacsCode == -1:
-        pacsList = range(0,100)
-    elif pacsCode % 10 == 0:
-        pacsList = range(pacsCode,pacsCode+10)
-    else:
-        pacsList = [pacsCode]
+    Graphs = [nx.Graph() for i in range(len(pacsCodes))]  # Undirected for the moment
     
-    print pacsList
+    myPacsCodes = []
+    for p in pacsCodes: 
+        # make list of acceptable PACS codes
+        if p == -1:
+            myPacsCodes.append([-1])
+        elif p % 10 == 0:
+            myPacsCodes.append(range(p,p+10))
+        else:
+            myPacsCodes.append([p])
     
-    # iterate through data frame from infile
-    ilocs = range(len(df))
-    for i in ilocs:
-        r = df.iloc[i]
-        # print type(r)
-        pacs = r['pacs']['pacscode']
-        if pacsCode == -1 or pacsMatch(pacs,pacsList):
-            authorInfo = processLine(r)
-            for au in authorInfo:
-                if au in G.nodes(): # author is already present
-                    for a in authorInfo:
-                        if a != au:
-                            if a in G.neighbors(au):
-                                G[au][a]['weight'] += 1
-                            else:
+    for x in range(len(myPacsCodes)):
+        G = Graphs[x]
+        p = myPacsCodes[x]
+        # iterate through data frame from infile
+        ilocs = range(len(df))
+        for i in ilocs:
+            r = df.iloc[i]
+            # print type(r)
+            pacs = r['pacs']['pacscode']
+            if p == [-1] or pacsMatch(pacs,p):
+                authorInfo = processAuthorLine(r)
+                for au in authorInfo:
+                    if au in G.nodes(): # author is already present
+                        for a in authorInfo:
+                            if a != au:
+                                if a in G.neighbors(au):
+                                    G[au][a]['weight'] += 1
+                                else:
+                                    G.add_edge(au,a, weight=1) 
+                    else: # author is not present, and needs to be added
+                        G.add_node(au)
+                        # add coauthors
+                        for a in authorInfo:
+                            if a != au:
                                 G.add_edge(au,a, weight=1) 
-                else: # author is not present, and needs to be added
-                    G.add_node(au)
-                    # add coauthors
-                    for a in authorInfo:
-                        if a != au:
-                            G.add_edge(au,a, weight=1) 
-                            # Each author node has an attribute called 'Coauthors':
-                            # 'Coauthors' is a dictionary storing the names of all
-                            # coauthors as keys, and number of cowritten papers as
-                            # an attribute
+                                # Each author node has an attribute called 'Coauthors':
+                                # 'Coauthors' is a dictionary storing the names of all
+                                # coauthors as keys, and number of cowritten papers as
+                                # an attribute
                 
     #return G, articleDict
-    return G
+    return Graphs
     
 
-def processLine(line):
+def processAuthorLine(line):
     #articleInfo = {field:line[field] for field in reqFields} # get all information
     authgrp = line['authgrp'] # since we're outputting a graph with authors as nodes
     # print authgrp
@@ -118,3 +121,69 @@ def pacsMatch(paperPacs, pacsList):
         except:
             pass
     return 0
+    
+
+def addCoAuthorGraphs(Graphs):
+    import networkx as nx
+    resG = nx.Graph()
+    for G in Graphs:
+        E = G.edges()
+        for e in E:
+            [n1,n2] = [e[0],e[1]]
+            w = G[n1][n2]['weight']
+            if e in resG.edges():
+                resG[n1][n2]['weight'] += w
+            else:
+                resG.add_edge(n1,n2,weight = w)
+    return resG 
+    
+
+def pacsXML(infile, pacsLevel=2):
+    '''Usage: G = processXML(infile, reqFields)
+        infile is a file name (with path as necessary) and must be an XML file.'''
+    # imports
+    import pandas as pd
+    import xmltodict
+    import networkx as nx
+
+    # read and process infile
+    f = open(infile,'r')
+    d = xmltodict.parse(f)
+    df = pd.DataFrame(d['articles']['article'])
+    
+    df = df.dropna(subset=['pacs'])
+
+    # initialize graph
+    G = nx.Graph()  # Undirected for the moment
+    
+    ilocs = range(len(df))
+    for i in ilocs:
+        r = df.iloc[i]
+        # print type(r)
+        properPacs = r['pacs']['pacscode']
+        pacsSet = set()
+        for p in properPacs:
+            try:
+                if pacsLevel == 1:
+                    pacs = p.split(".")[0]
+                elif pacsLevel == 2:
+                    pacs = int(p.split(".")[0])
+                    #print pacs
+                else:
+                    pacs = p
+                pacsSet.add(pacs)
+            except:
+                pass
+        pacsList = list(pacsSet)
+        #print pacsList
+        for x in range(len(pacsList)):
+            for y in range(x):
+                px = pacsList[x]
+                py = pacsList[y]
+                if G.has_edge(px,py):
+                    G[px][py]['weight'] += 1
+                else:
+                    G.add_edge(px,py,weight=1)
+            
+    #return G, articleDict
+    return G
