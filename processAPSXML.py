@@ -1,4 +1,4 @@
-def coAuthorsXML(infile, pacsCodes=[-1]):
+def coAuthorsXML(infile, pacsCodes=[-1], years=[]):
     '''Usage: G = processXML(infile, reqFields)
         infile is a file name (with path as necessary) and must be an XML file.'''
     # imports
@@ -40,6 +40,12 @@ def coAuthorsXML(infile, pacsCodes=[-1]):
             r = df.iloc[i]
             # print type(r)
             pacs = r['pacs']['pacscode']
+            if len(years):
+                hist = r['history']
+                if 'received' in hist.keys():
+                    year = int(hist['received'].split("-")[0])
+                    if year not in years:
+                        break
             if p == [-1] or pacsMatch(pacs,p):
                 authorInfo = processAuthorLine(r)
                 for au in authorInfo:
