@@ -1,4 +1,4 @@
-def processXML(infile, pacsCodes=-1):
+def processXML(infile, pacsCode=-1):
     '''Usage: G = processXML(infile, reqFields)
         infile is a file name (with path as necessary) and must be an XML file.'''
     # imports
