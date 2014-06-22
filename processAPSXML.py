@@ -1,79 +1,120 @@
-def processXML(infile, reqFields):
+def processXML(infile, pacsCodes=-1):
     '''Usage: G = processXML(infile, reqFields)
-        infile is a file name (with path as necessary) and must be an XML file.
-        reqfields is a list of strings identifying required fields (e.g., ['title','@doi','title'].  'authgrp' should not be included.
-        reqfields should not include things like 'aff'.
-        Note that only fields in reqfields will be represented in the final graph.'''
+        infile is a file name (with path as necessary) and must be an XML file.'''
     # imports
     import pandas as pd
     import xmltodict
     import networkx as nx
-    import collections
 
     # read and process infile
     f = open(infile,'r')
     d = xmltodict.parse(f)
-    k1 = d.keys()
-    k2 = d[k1].keys()
-    df = pd.DataFrame(d[k1][k2])
+    df = pd.DataFrame(d['articles']['article'])
     
     # remove rows without required fields
-    for rf in reqFields:
-        df = df.dropna(subset=[rf])
+    #for rf in reqFields:
+    #    df = df.dropna(subset=[rf])
+    
+    df = df.dropna(subset=['pacs'])
+    df = df.dropna(subset=['authgrp'])
 
     # initialize graph
     G = nx.Graph()  # Undirected for the moment
+
+    # make list of acceptable PACS codes
+    if pacsCode == -1:
+        pacsList = range(0,100)
+    elif pacsCode % 10 == 0:
+        pacsList = range(pacsCode,pacsCode+10)
+    else:
+        pacsList = [pacsCode]
     
-    # article list
-    articleDict = {}
-
-    # iterate through data frame from infile, with all reqfields
-    for r in df.iterrows():
-        authorInfo, articleInfo = processLine(r, reqFields)
-        doi = articleInfo['doi']
-        articleDict[doi] = articleInfo
-        pacs = articleInfo['pacs']['pacscode']
-        for i in authorInfo:
-            au = i[0]
-            af = i[1]
-            if au in G.nodes(): # author is already present
-                pass
-            else: # author is not present, and needs to be added
-                G.add(au)
-                # add coauthors
-                G.nodes[au] = {'Coauthors':{},
-                                'Affiliations':[af],
-                                'Subjects':[]}
-                for a in authorInfo:
-                    if a != au:
-                        G.nodes[au]['Coauthors'][a] = [doi]     
-                        # Each author node has an attribute called 'Coauthors':
-                        # 'Coauthors' is a dictionary storing the names of all
-                        # coauthors as keys, and lists of dois as values
-                # count each PACS code, 1 per paper
-                if type(pacs) is str: 
-                    G.nodes[au]['Subjects'] = {pacs:1}
-                else:
-                    G.nodes[au]['Subjects'] = {p:1 for p in pacs}
+    print pacsList
+    
+    # iterate through data frame from infile
+    ilocs = range(len(df))
+    for i in ilocs:
+        r = df.iloc[i]
+        # print type(r)
+        pacs = r['pacs']['pacscode']
+        if pacsCode == -1 or pacsMatch(pacs,pacsList):
+            authorInfo = processLine(r)
+            for au in authorInfo:
+                if au in G.nodes(): # author is already present
+                    for a in authorInfo:
+                        if a != au:
+                            if a in G.neighbors(au):
+                                G[au][a]['weight'] += 1
+                            else:
+                                G.add_edge(au,a, weight=1) 
+                else: # author is not present, and needs to be added
+                    G.add_node(au)
+                    # add coauthors
+                    for a in authorInfo:
+                        if a != au:
+                            G.add_edge(au,a, weight=1) 
+                            # Each author node has an attribute called 'Coauthors':
+                            # 'Coauthors' is a dictionary storing the names of all
+                            # coauthors as keys, and number of cowritten papers as
+                            # an attribute
                 
-    return G, articleDict
+    #return G, articleDict
+    return G
+    
 
-def processLine(line, reqFields):
-    import collections
-    articleInfo = {field:line[field] for field in reqFields} # get all information
-    authaff = line['authgrp'] # since we're outputting a graph with authors as nodes
-    authorInfo = []
-    for aff in authaff:
-        auths = aff[u'author']
-        myaff = aff[u'aff']
-        print myaff
-        print type(auths)
-        if type(auths) is list:
-            for author in auths:
-                name = (author['givenname'][0],author['middlename'][0],author['surname']) #first initials only
-                authorInfo.append([name, myaff])
+def processLine(line):
+    #articleInfo = {field:line[field] for field in reqFields} # get all information
+    authgrp = line['authgrp'] # since we're outputting a graph with authors as nodes
+    # print authgrp
+    authorList = processAuthors(authgrp)
+    return authorList
+    
+
+def processAuthors(authgrp):
+    from collections import OrderedDict
+    authorList = []
+    if type(authgrp) is OrderedDict:
+        if 'author' in authgrp.keys():
+            author = authgrp['author']
         else:
-            name = (auths['givenname'][0],auths['middlename'][0],auths['surname'])
-            authorInfo.append([name,myaff])
+            author = authgrp
+        if type(author) is OrderedDict:
+            if 'surname' in author.keys():
+                try:
+                    gname = author['givenname'][0]
+                except:
+                    gname = "-"
+                try:
+                    mname = author['middlename'][0]
+                except:
+                    mname = "-"
+                try:
+                    suff = author['suffix']
+                except:
+                    suff = "-"
+                name = (gname,mname,author['surname'],suff)
+                authorList.append(name)
+        else:
+            for a in author:
+                alist = processAuthors(a)
+                for al in alist:
+                    authorList.append(al)
+    else:
+        #print authgrp
+        for a in authgrp:
+            alist = processAuthors(a)
+            for al in alist:
+                authorList.append(al)
+    return authorList
+    
 
-    return authorInfo, articleInfo
+def pacsMatch(paperPacs, pacsList):
+    #print paperPacs
+    for pp in paperPacs:
+        try:
+            p = pp.split(".")[0]
+            if int(p) in pacsList:
+                return 1
+        except:
+            pass
+    return 0
