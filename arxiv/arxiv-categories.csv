@@ -1,0 +1,128 @@
+,abbrev,description
+0,stat.AP,Statistics - Applications
+1,stat.CO,Statistics - Computation
+2,stat.ML,Statistics - Machine Learning
+3,stat.ME,Statistics - Methodology
+4,stat.TH,Statistics - Theory
+5,q-bio.BM,Quantitative Biology - Biomolecules
+6,q-bio.CB,Quantitative Biology - Cell Behavior
+7,q-bio.GN,Quantitative Biology - Genomics
+8,q-bio.MN,Quantitative Biology - Molecular Networks
+9,q-bio.NC,Quantitative Biology - Neurons and Cognition
+10,q-bio.OT,Quantitative Biology - Other
+11,q-bio.PE,Quantitative Biology - Populations and Evolution
+12,q-bio.QM,Quantitative Biology - Quantitative Methods
+13,q-bio.SC,Quantitative Biology - Subcellular Processes
+14,q-bio.TO,Quantitative Biology - Tissues and Organs
+15,cs.AR,Computer Science - Architecture
+16,cs.AI,Computer Science - Artificial Intelligence
+17,cs.CL,Computer Science - Computation and Language
+18,cs.CC,Computer Science - Computational Complexity
+19,cs.CE,Computer Science - Computational Engineering; Finance; and Science
+20,cs.CG,Computer Science - Computational Geometry
+21,cs.GT,Computer Science - Computer Science and Game Theory
+22,cs.CV,Computer Science - Computer Vision and Pattern Recognition
+23,cs.CY,Computer Science - Computers and Society
+24,cs.CR,Computer Science - Cryptography and Security
+25,cs.DS,Computer Science - Data Structures and Algorithms
+26,cs.DB,Computer Science - Databases
+27,cs.DL,Computer Science - Digital Libraries
+28,cs.DM,Computer Science - Discrete Mathematics
+29,cs.DC,Computer Science - Distributed; Parallel; and Cluster Computing
+30,cs.GL,Computer Science - General Literature
+31,cs.GR,Computer Science - Graphics
+32,cs.HC,Computer Science - Human-Computer Interaction
+33,cs.IR,Computer Science - Information Retrieval
+34,cs.IT,Computer Science - Information Theory
+35,cs.LG,Computer Science - Learning
+36,cs.LO,Computer Science - Logic in Computer Science
+37,cs.MS,Computer Science - Mathematical Software
+38,cs.MA,Computer Science - Multiagent Systems
+39,cs.MM,Computer Science - Multimedia
+40,cs.NI,Computer Science - Networking and Internet Architecture
+41,cs.NE,Computer Science - Neural and Evolutionary Computing
+42,cs.NA,Computer Science - Numerical Analysis
+43,cs.OS,Computer Science - Operating Systems
+44,cs.OH,Computer Science - Other
+45,cs.PF,Computer Science - Performance
+46,cs.PL,Computer Science - Programming Languages
+47,cs.RO,Computer Science - Robotics
+48,cs.SE,Computer Science - Software Engineering
+49,cs.SD,Computer Science - Sound
+50,cs.SC,Computer Science - Symbolic Computation
+51,nlin.AO,Nonlinear Sciences - Adaptation and Self-Organizing Systems
+52,nlin.CG,Nonlinear Sciences - Cellular Automata and Lattice Gases
+53,nlin.CD,Nonlinear Sciences - Chaotic Dynamics
+54,nlin.SI,Nonlinear Sciences - Exactly Solvable and Integrable Systems
+55,nlin.PS,Nonlinear Sciences - Pattern Formation and Solitons
+56,math.AG,Mathematics - Algebraic Geometry
+57,math.AT,Mathematics - Algebraic Topology
+58,math.AP,Mathematics - Analysis of PDEs
+59,math.CT,Mathematics - Category Theory
+60,math.CA,Mathematics - Classical Analysis and ODEs
+61,math.CO,Mathematics - Combinatorics
+62,math.AC,Mathematics - Commutative Algebra
+63,math.CV,Mathematics - Complex Variables
+64,math.DG,Mathematics - Differential Geometry
+65,math.DS,Mathematics - Dynamical Systems
+66,math.FA,Mathematics - Functional Analysis
+67,math.GM,Mathematics - General Mathematics
+68,math.GN,Mathematics - General Topology
+69,math.GT,Mathematics - Geometric Topology
+70,math.GR,Mathematics - Group Theory
+71,math.HO,Mathematics - History and Overview
+72,math.IT,Mathematics - Information Theory
+73,math.KT,Mathematics - K-Theory and Homology
+74,math.LO,Mathematics - Logic
+75,math.MP,Mathematics - Mathematical Physics
+76,math.MG,Mathematics - Metric Geometry
+77,math.NT,Mathematics - Number Theory
+78,math.NA,Mathematics - Numerical Analysis
+79,math.OA,Mathematics - Operator Algebras
+80,math.OC,Mathematics - Optimization and Control
+81,math.PR,Mathematics - Probability
+82,math.QA,Mathematics - Quantum Algebra
+83,math.RT,Mathematics - Representation Theory
+84,math.RA,Mathematics - Rings and Algebras
+85,math.SP,Mathematics - Spectral Theory
+86,math.ST,Mathematics - Statistics
+87,math.SG,Mathematics - Symplectic Geometry
+88,astro-ph,Astrophysics
+89,cond-mat.dis-nn,Physics - Disordered Systems and Neural Networks
+90,cond-mat.mes-hall,Physics - Mesoscopic Systems and Quantum Hall Effect
+91,cond-mat.mtrl-sci,Physics - Materials Science
+92,cond-mat.other,Physics - Other
+93,cond-mat.soft,Physics - Soft Condensed Matter
+94,cond-mat.stat-mech,Physics - Statistical Mechanics
+95,cond-mat.str-el,Physics - Strongly Correlated Electrons
+96,cond-mat.supr-con,Physics - Superconductivity
+97,gr-qc,General Relativity and Quantum Cosmology
+98,hep-ex,High Energy Physics - Experiment
+99,hep-lat,High Energy Physics - Lattice
+100,hep-ph,High Energy Physics - Phenomenology
+101,hep-th,High Energy Physics - Theory
+102,math-ph,Mathematical Physics
+103,nucl-ex,Nuclear Experiment
+104,nucl-th,Nuclear Theory
+105,physics.acc-ph,Physics - Accelerator Physics
+106,physics.ao-ph,Physics - Atmospheric and Oceanic Physics
+107,physics.atom-ph,Physics - Atomic Physics
+108,physics.atm-clus,Physics - Atomic and Molecular Clusters
+109,physics.bio-ph,Physics - Biological Physics
+110,physics.chem-ph,Physics - Chemical Physics
+111,physics.class-ph,Physics - Classical Physics
+112,physics.comp-ph,Physics - Computational Physics
+113,physics.data-an,Physics - Data Analysis; Statistics and Probability
+114,physics.flu-dyn,Physics - Fluid Dynamics
+115,physics.gen-ph,Physics - General Physics
+116,physics.geo-ph,Physics - Geophysics
+117,physics.hist-ph,Physics - History of Physics
+118,physics.ins-det,Physics - Instrumentation and Detectors
+119,physics.med-ph,Physics - Medical Physics
+120,physics.optics,Physics - Optics
+121,physics.ed-ph,Physics - Physics Education
+122,physics.soc-ph,Physics - Physics and Society
+123,physics.plasm-ph,Physics - Plasma Physics
+124,physics.pop-ph,Physics - Popular Physics
+125,physics.space-ph,Physics - Space Physics
+126,quant-ph,Quantum Physics

@@ -5,6 +5,7 @@ Functions to process and analyze arXiv data
 
 
 import glob
+import os
 
 import pandas as pd
 
@@ -100,3 +101,9 @@ def get_all_authors(df):
             for i in a:
                 authors.add(i)
     return authors
+
+
+def get_arxiv_categories():
+    path = os.path.join(os.path.dirname(__file__),
+                        'arxiv-categories.csv')
+    return pd.read_csv(path, index_col=0)
