@@ -42,18 +42,33 @@ def unified_name(name, initials_only=True):
     return ''.join(initials)
 
 
-def get_authors(row):
+def get_authors(row, initials_only=False, subset_categories=None):
     """Get all authors for a given row (paper)"""
-    try:
-        #forenames = [unified_name(i) for i in row.forenames.split('|')]
-        forenames = [unified_name(i, initials_only=False)
-                     for i in row.forenames.split('|')]
-        lastnames = row.keyname.split('|')
-    except AttributeError:  # if a paper has no authors?
-        return None  # TODO should log this
-
-    authors = [', '.join(i) for i in zip(lastnames, forenames)]
+    if subset_categories:
+        cats = get_categories(row, subset_categories)
+        subset = [c for c in cats if c in subset_categories]
+        if len(subset) == 0:
+            authors = None
+    else:
+        try:
+            forenames = [unified_name(i, initials_only=initials_only)
+                         for i in row.forenames.split('|')]
+            lastnames = row.keyname.split('|')
+            authors = [', '.join(i) for i in zip(lastnames, forenames)]
+        except AttributeError:  # if a paper has no authors?
+            authors = None  # TODO should log this
     return authors
+
+
+def get_categories(row, subset_categories=None):
+    """Get all categories for a given row (paper)"""
+    try:
+        cats = row.categories.split('|')
+        if subset_categories:
+            cats = [c for c in cats if c in subset_categories]
+    except AttributeError:
+        return None  # TODO should log this
+    return cats
 
 
 def get_author_series(df):
@@ -65,9 +80,6 @@ def get_author_series(df):
     author_counter = {}
 
     for index, row in df.iterrows():
-        # Make unified initials
-    #     make_ui = lambda x: ''.join([i.strip('-').strip('.')[0]
-    #                                  for i in x.rstrip(' .').split(' ')])
         authors = get_authors(row)
         if authors:
             for a in authors:
