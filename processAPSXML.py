@@ -1,5 +1,5 @@
 def coAuthorsXML(infile, pacsCodes=[-1], years=[]):
-    '''Usage: G = processXML(infile, reqFields)
+    '''Usage: G = processXML(infile, <pacsCodes=[...], years=[...]>)
         infile is a file name (with path as necessary) and must be an XML file.'''
     # imports
     import pandas as pd
@@ -49,23 +49,24 @@ def coAuthorsXML(infile, pacsCodes=[-1], years=[]):
             if p == [-1] or pacsMatch(pacs,p):
                 authorInfo = processAuthorLine(r)
                 for au in authorInfo:
-                    if au in G.nodes(): # author is already present
-                        for a in authorInfo:
-                            if a != au:
-                                if a in G.neighbors(au):
-                                    G[au][a]['weight'] += 1
-                                else:
-                                    G.add_edge(au,a, weight=1) 
-                    else: # author is not present, and needs to be added
-                        G.add_node(au)
-                        # add coauthors
-                        for a in authorInfo:
-                            if a != au:
+                    if au not in G.nodes():
+                        #print au
+                        G.add_node(au,{'numPapers':0})
+                        
+                for au in authorInfo:
+                    for a in authorInfo:
+                        if a != au:
+                            if a in G.neighbors(au):
+                                G[au][a]['weight'] += 1
+                            else:
                                 G.add_edge(au,a, weight=1) 
-                                # Each author node has an attribute called 'Coauthors':
-                                # 'Coauthors' is a dictionary storing the names of all
-                                # coauthors as keys, and number of cowritten papers as
-                                # an attribute
+                
+                for au in authorInfo:
+                    G.node[au]['numPapers'] += 1
+    
+    #for node in G.nodes():
+    #    if G.node[node]['numPapers'] > 50:
+    #        print node, G.node[node]['numPapers']      
                 
     #return G, articleDict
     return Graphs
@@ -90,11 +91,13 @@ def processAuthors(authgrp):
         if type(author) is OrderedDict:
             if 'surname' in author.keys():
                 try:
-                    gname = author['givenname'][0]
+                    gname = author['givenname']
                 except:
                     gname = "-"
                 try:
-                    mname = author['middlename'][0]
+                    mname = author['middlename']
+                    if type(mname) is list:
+                        mname = tuple(mname)
                 except:
                     mname = "-"
                 try:
@@ -171,7 +174,7 @@ def pacsXML(infile, pacsLevel=2):
         for p in properPacs:
             try:
                 if pacsLevel == 1:
-                    pacs = p.split(".")[0]
+                    pacs = (int(p.split(".")[0])/10)*10
                 elif pacsLevel == 2:
                     pacs = int(p.split(".")[0])
                     #print pacs
@@ -192,4 +195,47 @@ def pacsXML(infile, pacsLevel=2):
                     G.add_edge(px,py,weight=1)
             
     #return G, articleDict
+    return G
+    
+
+def authors2Subjects(infile):
+    '''Usage: G = processXML(infile)
+        infile is a file name (with path as necessary) and must be an XML file.'''
+    # imports
+    import pandas as pd
+    import xmltodict
+    import networkx as nx
+
+    # read and process infile
+    f = open(infile,'r')
+    d = xmltodict.parse(f)
+    df = pd.DataFrame(d['articles']['article'])
+    
+    df = df.dropna(subset=['pacs'])
+    df = df.dropna(subset=['authgrp'])
+
+    # initialize graph
+    G = nx.Graph()  # Undirected for the moment
+    
+    # iterate through data frame from infile
+    ilocs = range(len(df))
+    for i in ilocs:
+        r = df.iloc[i]
+        
+        pacs = r['pacs']['pacscode']
+        for p in pacs:
+            if p not in G.nodes():
+                G.add_node(p)
+                
+        authorInfo = processAuthorLine(r)
+        for au in authorInfo:
+            if au not in G.nodes():
+                G.add_node(au)
+                        
+        for au in authorInfo:
+            for p in pacs:
+                if G.has_edge(au,p):
+                    G[au][p]['weight'] += 1
+                else:
+                    G.add_edge(au,p,weight=1)
     return G
