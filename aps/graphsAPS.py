@@ -1,5 +1,6 @@
 import parseAPS
 import networkx as nx
+import community
 
 def getAdjListSimple(df, what='authors', authorInitialsOnly=False, subsetPACS=None, subsetYears=None):
 	result = {}
@@ -96,13 +97,16 @@ def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 	return results
 	
 	
-def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=None, startYear=1982, endYear=2008, window=5, stats=['edges']):
+def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=None, startYear=1982, endYear=2008, window=5, stats=['edges'], partition=None):
 	aio = authorInitialsOnly
 	sp = subsetPACS
 	sy = startYear
 	ey = endYear
 	wi = window
 	w = what
+	if 'modularity' in stats and not partition:
+		print "No partition given for modularity computation"
+		stats.remove('modularity')
 	adjLists = getDynamicNetwork(df, what=w, authorInitialsOnly=aio, subsetPACS=sp, startYear=sy, endYear=ey, window=wi)
 	numY = len(adjLists)
 	print numY
@@ -122,5 +126,7 @@ def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 statsDict = {'edges':nx.edges,
 			'nodes':nx.nodes,
 			'degree_assortativity':nx.degree_pearson_correlation_coefficient,
-			'components':nx.number_connected_components
+			'components':nx.number_connected_components,
+			'best_modularity':community.best_partition,
+			'modularity':community.partition
 			}
