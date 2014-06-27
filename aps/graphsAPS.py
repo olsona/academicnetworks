@@ -117,6 +117,11 @@ def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 		for st in statsLists.keys():
 			if st in ['edges','nodes']:
 				statsLists[st][yearKey-startYear] = len(statsDict[st](G))
+			elif st == 'partition':
+				statsLists[st][yearKey-startYear] = statsDict[st](partition,G)
+			elif st == 'modularity':
+				part = statsDict[st](G)
+				statsLists[st][yearKey-startYear] = statsDict['modularity'](G)
 			else:
 				statsLists[st][yearKey-startYear] = statsDict[st](G)
 	return statsLists
@@ -128,5 +133,5 @@ statsDict = {'edges':nx.edges,
 			'degree_assortativity':nx.degree_pearson_correlation_coefficient,
 			'components':nx.number_connected_components,
 			'best_modularity':community.best_partition,
-			'modularity':community.partition
+			'modularity':community.modularity
 			}
