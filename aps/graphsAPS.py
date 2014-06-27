@@ -109,27 +109,25 @@ def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 		stats.remove('modularity')
 	adjLists = getDynamicNetwork(df, what=w, authorInitialsOnly=aio, subsetPACS=sp, startYear=sy, endYear=ey, window=wi)
 	numY = len(adjLists)
-	print numY
 	statsLists = {st:[0.0]*numY for st in stats}
 	for yearKey in sorted(adjLists.keys()):
 		graphDict = adjLists[yearKey]
 		G = nx.from_dict_of_dicts(graphDict)
 		for st in statsLists.keys():
-			if st in ['edges','nodes']:
-				statsLists[st][yearKey-startYear] = len(statsDict[st](G))
-			elif st == 'modularity':
+			if st == 'modularity':
 				statsLists[st][yearKey-startYear] = statsDict[st](partition,G)
 			elif st == 'best_modularity':
 				part = statsDict[st](G)
-				statsLists[st][yearKey-startYear] = statsDict['modularity'](part,G)
+				#print len(set(part.values()))
+				statsLists[st][yearKey-startYear] = [statsDict['modularity'](part,G),len(set(part.values()))]
 			else:
 				statsLists[st][yearKey-startYear] = statsDict[st](G)
 	return statsLists
 	
 	
 # because I love dispatch tables	
-statsDict = {'edges':nx.edges,
-			'nodes':nx.nodes,
+statsDict = {'edges':nx.number_of_edges,
+			'nodes':nx.number_of_nodes,
 			'degree_assortativity':nx.degree_pearson_correlation_coefficient,
 			'components':nx.number_connected_components,
 			'best_modularity':community.best_partition,
