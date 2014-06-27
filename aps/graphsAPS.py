@@ -117,11 +117,11 @@ def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 		for st in statsLists.keys():
 			if st in ['edges','nodes']:
 				statsLists[st][yearKey-startYear] = len(statsDict[st](G))
-			elif st == 'partition':
-				statsLists[st][yearKey-startYear] = statsDict[st](partition,G)
 			elif st == 'modularity':
+				statsLists[st][yearKey-startYear] = statsDict[st](partition,G)
+			elif st == 'best_modularity':
 				part = statsDict[st](G)
-				statsLists[st][yearKey-startYear] = statsDict['modularity'](G)
+				statsLists[st][yearKey-startYear] = statsDict['modularity'](part,G)
 			else:
 				statsLists[st][yearKey-startYear] = statsDict[st](G)
 	return statsLists
