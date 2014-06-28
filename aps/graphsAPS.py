@@ -3,7 +3,8 @@ import networkx as nx
 import community
 
 def getAdjListSimple(df, what='authors', authorInitialsOnly=False, subsetPACS=None, subsetYears=None):
-	result = {}
+	resultDict = {}
+	nodeWeights = {}
 	aio = authorInitialsOnly
 	sp = subsetPACS
 	sy = subsetYears
@@ -14,40 +15,57 @@ def getAdjListSimple(df, what='authors', authorInitialsOnly=False, subsetPACS=No
 			items = parseAPS.getPACS(row, subsetPACS=sp, subsetYears=sy)
 		if items:  # Skip this row if items is None
 			lead = items[0]
-			if lead not in result:
+			if lead not in resultDict:
 				result[lead] = {}
 				for follow in items[1:]:
-					result[lead][follow] = {'weight': 1}
+					resultDict[lead][follow] = {'weight': 1}
 			else:
 				for follow in items[1:]:
-					if follow not in result[lead]:
-						result[lead][follow] = {'weight': 1}
+					if follow not in resultDict[lead]:
+						resultDict[lead][follow] = {'weight': 1}
 					else:
-						result[lead][follow]['weight'] += 1
-	return result
+						resultDict[lead][follow]['weight'] += 1
+			for i in items:
+				if i in nodeWeights:
+					nodeWeights[i] += 1
+				else:
+					nodeWeights[i] = 1
+	return resultDict, nodeWeights
 
 
 def getAdjListBipartite(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None):
-	result = {}
+	resultDict = {}
 	aio = authorInitialsOnly
 	sp = subsetPACS
 	sy = subsetYears
+	nodeWeights = {}
 	for index, row in df.iterrows():
 		auths = parseAPS.getAuthors(row, authorInitialsOnly=aio, subsetPACS=sp, subsetYears=sy)
 		pacs = parseAPS.getPACS(row, subsetPACS=sp, subsetYears=sy)
 		if auths and pacs:
 			for a in auths:
-				if a not in result:
-					result[a] = {}
+				if a not in resultDict:
+					resultDict[a] = {}
 					for p in pacs:
-						result[a][p] = {'weight': 1}
+						resultDict[a][p] = {'weight': 1}
 				else:
 					for p in pacs:
 						if p not in result[a]:
-							result[a][p] = {'weight': 1}
+							resultDict[a][p] = {'weight': 1}
 						else:
-							result[a][p]['weight'] += 1
-	return result
+							resultDict[a][p]['weight'] += 1
+			for a in auths:
+				if a in nodeWeights:
+					nodeWeights[a] += 1
+				else:
+					nodeWeights[a] = 1
+			for p in pacs:
+				if p in nodeWeights:
+					nodeWeights[p] += 1
+				else:
+					nodeWeights[p] = 1
+				
+	return resultDict, nodeWeights
 
 
 def makeGraph(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None, what=['authors']):
@@ -56,12 +74,13 @@ def makeGraph(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None, w
 	sy = subsetYears
 	w = what
 	if len(what) == 1:
-		adjList = getAdjListSimple(df, authorInitialsOnly=aio, subsetPACS=sp, subsetYears=sy, what=w[0])
+		adjList, nodeWeights = getAdjListSimple(df, authorInitialsOnly=aio, subsetPACS=sp, subsetYears=sy, what=w[0])
 	elif len(what) == 2:
-		adjList = getAdjListBipartite(df, authorInitialsOnly=aio, subsetYears=sy, subsetPACS=sp)
+		adjList, nodeWeights = getAdjListBipartite(df, authorInitialsOnly=aio, subsetYears=sy, subsetPACS=sp)
 
 	if adjList:
 		G = nx.from_dict_of_dicts(adjList)
+		nx.set_node_attributes(G,'total',nodeWeights)
 		return G
 	else:
 		return None
@@ -115,7 +134,8 @@ def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 		G = nx.from_dict_of_dicts(graphDict)
 		for st in statsLists.keys():
 			if st == 'modularity':
-				statsLists[st][yearKey-startYear] = statsDict[st](partition,G)
+				myPartition = assignPACSpartition(partition,G)
+				statsLists[st][yearKey-startYear] = statsDict[st](myPartition,G)
 			elif st == 'best_modularity':
 				part = statsDict[st](G)
 				#print len(set(part.values()))
@@ -123,7 +143,18 @@ def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 			else:
 				statsLists[st][yearKey-startYear] = statsDict[st](G)
 	return statsLists
-	
+
+
+def assignPACSpartition(partitionDict, G):
+	partition = {n:0 for n in G.nodes()}
+	for n in G.nodes():
+		for p in partitionDict.keys():
+			part = partitionDict[p]
+			if n in part:
+				partition[n] = p
+	return partition
+				
+		
 	
 # because I love dispatch tables	
 statsDict = {'edges':nx.number_of_edges,
