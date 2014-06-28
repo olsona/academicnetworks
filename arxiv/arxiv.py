@@ -16,6 +16,7 @@ def read_all_arxiv_files(glob_pattern='arxiv/s-*.csv'):
     for f in files[1:]:
         df = pd.concat([df, pd.read_csv(f, index_col=0,
                         encoding='utf-8')])
+    df['year'] = df.index.map(year_extractor)
     return df
 
 
@@ -107,3 +108,16 @@ def get_arxiv_categories():
     path = os.path.join(os.path.dirname(__file__),
                         'arxiv-categories.csv')
     return pd.read_csv(path, index_col=0)
+
+
+def year_extractor(identifier):
+    identifier = str(identifier)
+    if '.' in identifier:
+        year = int(identifier[0:2])
+    else:
+        year = int(identifier.split('/')[1][0:2])
+    if year > 80:
+        year = year + 1900
+    else:
+        year = year + 2000
+    return year
