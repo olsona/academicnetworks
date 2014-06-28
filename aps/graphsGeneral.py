@@ -6,6 +6,7 @@ def getStats(graphDict, stats=['components']):
 	for k in graphDict.keys():
 		G = graphDict[k]
 		for s in statsDict:
+			print "Working on {!s} for {!s}".format(s, k)
 			res = statsTable[s](G)
 			statsDict[s][k] = res
 	return statsDict
