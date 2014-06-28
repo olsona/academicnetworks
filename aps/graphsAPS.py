@@ -89,7 +89,8 @@ def makeGraph(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None, w
 def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=None, startYear=1982, endYear=2008, window=5):
 	diam = window/2
 	yearSet = {y:range(y-diam,y+diam+1) for y in range(startYear,endYear+1)}
-	results = {y:{} for y in yearSet}
+	resultsDict = {y:{} for y in yearSet}
+	nodeWeights = {y:{} for y in yearSet}
 	aio = authorInitialsOnly
 	sp = subsetPACS
 	for index, row in df.iterrows():
@@ -103,17 +104,22 @@ def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 				yearRange = yearSet[yearKey]
 				if year in yearRange:
 					lead = items[0]
-					if lead not in results:
-						results[yearKey][lead] = {}
+					if lead not in resultsDict[yearKey]:
+						resultsDict[yearKey][lead] = {}
 						for follow in items[1:]:
-							results[yearKey][lead][follow] = {'weight': 1}
+							resultsDict[yearKey][lead][follow] = {'weight': 1}
 					else:
 						for follow in items[1:]:
-							if follow not in result[lead]:
-								results[yearKey][lead][follow] = {'weight': 1}
+							if follow not in resultsDict[yearKey][lead]:
+								resultsDict[yearKey][lead][follow] = {'weight': 1}
 							else:
-								results[yearKey][lead][follow]['weight'] += 1
-	return results
+								resultsDict[yearKey][lead][follow]['weight'] += 1
+					for i in items:
+						if i in nodeWeights[yearKey]:
+							nodeWeights[yearKey][i] += 1
+						else:
+							nodeWeights[yearKey][i] = 1
+	return resultsDict, nodeWeights
 	
 	
 def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=None, startYear=1982, endYear=2008, window=5, stats=['edges'], partition=None):
@@ -126,12 +132,13 @@ def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 	if 'modularity' in stats and not partition:
 		print "No partition given for modularity computation"
 		stats.remove('modularity')
-	adjLists = getDynamicNetwork(df, what=w, authorInitialsOnly=aio, subsetPACS=sp, startYear=sy, endYear=ey, window=wi)
+	adjLists, nodeWeights = getDynamicNetwork(df, what=w, authorInitialsOnly=aio, subsetPACS=sp, startYear=sy, endYear=ey, window=wi)
 	numY = len(adjLists)
 	statsLists = {st:[0.0]*numY for st in stats}
 	for yearKey in sorted(adjLists.keys()):
 		graphDict = adjLists[yearKey]
 		G = nx.from_dict_of_dicts(graphDict)
+		nx.set_node_attributes(G,'total',nodeWeights[yearKey])
 		for st in statsLists.keys():
 			if st == 'modularity':
 				myPartition = assignPACSpartition(partition,G)
