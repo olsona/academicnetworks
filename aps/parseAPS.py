@@ -48,11 +48,11 @@ def getAuthorsYears(row, authorInitialsOnly=False, subsetPACS=None):
 	year = getYear(row)
 	if subsetPACS:
 		numGood = 0
-		subsetPACS = row['pacs']['pacscode']
-		for pp in subsetPACS:
+		myPACS = convertPACS(row['pacs']['pacscode'])
+		for pp in myPACS:
 			if pp in subsetPACS:
 				numGood += 1
-		if numGood:
+		if numGood > 0:
 			goodP = 1
 	else:
 		goodP = 1
