@@ -7,7 +7,10 @@ def getStats(graphDict, stats=['components']):
 		G = graphDict[k]
 		for s in statsDict:
 			print "Working on {!s} for {!s}".format(s, k)
-			res = statsTable[s](G)
+			if s in ['betweenness_centrality','eigenvector_centrality']:
+				res = statsTable[s](G,weight='total')
+			else:
+				res = statsTable[s](G)
 			statsDict[s][k] = res
 	return statsDict
 	
