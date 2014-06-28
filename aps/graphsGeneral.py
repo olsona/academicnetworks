@@ -2,11 +2,17 @@ import networkx as nx
 import community
 
 def getStats(graphDict, stats=['components']):
-	
+	statsDict = {s:{k:None for k in graphDict.keys()} for s in stats}
+	for k in graphDict.keys():
+		G = graphDict[k]
+		for s in statsDict:
+			res = statsTable[s](G)
+			statsDict[s][k] = res
+	return statsDict
 	
 	
 #because dispatch tables are cool
-statsDict = {'edges':nx.number_of_edges,
+statsTable = {'edges':nx.number_of_edges,
 			'nodes':nx.number_of_nodes,
 			'degree_assortativity':nx.degree_pearson_correlation_coefficient,
 			'components':nx.number_connected_components,

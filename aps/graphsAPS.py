@@ -142,13 +142,13 @@ def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 		for st in statsLists.keys():
 			if st == 'modularity':
 				myPartition = assignPACSpartition(partition,G)
-				statsLists[st][yearKey-startYear] = statsDict[st](myPartition,G)
+				statsLists[st][yearKey-startYear] = statsTable[st](myPartition,G)
 			elif st == 'best_modularity':
-				part = statsDict[st](G)
+				part = statsTable[st](G)
 				#print len(set(part.values()))
-				statsLists[st][yearKey-startYear] = [statsDict['modularity'](part,G),len(set(part.values()))]
+				statsLists[st][yearKey-startYear] = [statsTable['modularity'](part,G),len(set(part.values()))]
 			else:
-				statsLists[st][yearKey-startYear] = statsDict[st](G)
+				statsLists[st][yearKey-startYear] = statsTable[st](G)
 	return statsLists
 
 
@@ -164,7 +164,7 @@ def assignPACSpartition(partitionDict, G):
 		
 	
 # because I love dispatch tables	
-statsDict = {'edges':nx.number_of_edges,
+statsTable = {'edges':nx.number_of_edges,
 			'nodes':nx.number_of_nodes,
 			'degree_assortativity':nx.degree_pearson_correlation_coefficient,
 			'components':nx.number_connected_components,
