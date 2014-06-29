@@ -1,7 +1,11 @@
 import networkx as nx
 import community
 
-def getStats(graphDict, stats=['components']):
+def getStats(graphDict, stats=None):
+	if not stats:
+		stats = ['edges','nodes','degree_assortativity','components',\
+			'best_modularity','degree_centrality','betweenness_centrality',\
+			'eigenvector_centrality','density','edge_betweenness']
 	statsDict = {s:{k:None for k in graphDict.keys()} for s in stats}
 	for k in graphDict.keys():
 		G = graphDict[k]
