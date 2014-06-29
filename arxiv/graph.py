@@ -59,7 +59,7 @@ def get_adjacency_and_weights(df, what='authors', author_initials_only=False,
 
 
 def create_graph(df, what):
-    adjacency, weights = arxiv.graph.get_adjacency_and_weights(df, what=what)
+    adjacency, weights = get_adjacency_and_weights(df, what=what)
     G = nx.from_dict_of_dicts(adjacency)
     nx.set_node_attributes(G, 'total', weights)
     return G
