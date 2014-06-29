@@ -6,12 +6,28 @@ def getStats(graphDict, stats=['components']):
 	for k in graphDict.keys():
 		G = graphDict[k]
 		for s in statsDict:
-			print "Working on {!s} for {!s}".format(s, k)
-			if s in ['betweenness_centrality','eigenvector_centrality']:
-				res = statsTable[s](G,weight='total')
+			#print "Working on {!s} for {!s}".format(s, k)
+			if s in ['betweenness_centrality','eigenvector_centrality','edge_betweenness']:
+				try:
+					res = statsTable[s](G,weight='total')
+				except:
+					res = None
+			elif s in ['best_modularity']:
+				try:
+					part = statsTable[s](G)
+					mod = community.modularity(part,G)
+					num = len(set(part.values()))
+					res = [mod,num]
+					#print res
+				except:
+					res = [None, None]
 			else:
-				res = statsTable[s](G)
+				try:
+					res = statsTable[s](G)
+				except:
+					res = None
 			statsDict[s][k] = res
+		print k
 	return statsDict
 	
 	
@@ -24,5 +40,7 @@ statsTable = {'edges':nx.number_of_edges,
 			'degree_centrality':nx.degree_centrality,
 			'betweenness_centrality':nx.betweenness_centrality,
 			'eigenvector_centrality':nx.eigenvector_centrality,
-			'density':nx.density
+			'density':nx.density,
+			'edge_betweenness':nx.edge_betweenness_centrality
 			}
+	

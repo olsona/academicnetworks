@@ -18,13 +18,13 @@ def getAdjListSimple(df, what='authors', authorInitialsOnly=False, subsetPACS=No
 			if lead not in resultDict:
 				resultDict[lead] = {}
 				for follow in items[1:]:
-					resultDict[lead][follow] = {'total': 1}
+					resultDict[lead][follow] = {'weight': 1}
 			else:
 				for follow in items[1:]:
 					if follow not in resultDict[lead]:
-						resultDict[lead][follow] = {'total': 1}
+						resultDict[lead][follow] = {'weight': 1}
 					else:
-						resultDict[lead][follow]['total'] += 1
+						resultDict[lead][follow]['weight'] += 1
 			for i in items:
 				if i in nodeWeights:
 					nodeWeights[i] += 1
@@ -47,13 +47,13 @@ def getAdjListBipartite(df, authorInitialsOnly=False, subsetPACS=None, subsetYea
 				if a not in resultDict:
 					resultDict[a] = {}
 					for p in pacs:
-						resultDict[a][p] = {'total': 1}
+						resultDict[a][p] = {'weight': 1}
 				else:
 					for p in pacs:
 						if p not in result[a]:
-							resultDict[a][p] = {'total': 1}
+							resultDict[a][p] = {'weight': 1}
 						else:
-							resultDict[a][p]['total'] += 1
+							resultDict[a][p]['weight'] += 1
 			for a in auths:
 				if a in nodeWeights:
 					nodeWeights[a] += 1
@@ -80,13 +80,13 @@ def makeGraph(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None, w
 
 	if adjList:
 		G = nx.from_dict_of_dicts(adjList)
-		nx.set_node_attributes(G,'total',nodeWeights)
+		nx.set_node_attributes(G,'weight',nodeWeights)
 		return G
 	else:
 		return None
 		
 		
-def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=None, startYear=1982, endYear=2008, window=5):
+def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=None, startYear=1982, endYear=2007, window=5):
 	diam = window/2
 	yearSet = {y:range(y-diam,y+diam+1) for y in range(startYear,endYear+1)}
 	resultsDict = {y:{} for y in yearSet}
@@ -107,13 +107,13 @@ def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 					if lead not in resultsDict[yearKey]:
 						resultsDict[yearKey][lead] = {}
 						for follow in items[1:]:
-							resultsDict[yearKey][lead][follow] = {'total': 1}
+							resultsDict[yearKey][lead][follow] = {'weight': 1}
 					else:
 						for follow in items[1:]:
 							if follow not in resultsDict[yearKey][lead]:
-								resultsDict[yearKey][lead][follow] = {'total': 1}
+								resultsDict[yearKey][lead][follow] = {'weight': 1}
 							else:
-								resultsDict[yearKey][lead][follow]['total'] += 1
+								resultsDict[yearKey][lead][follow]['weight'] += 1
 					for i in items:
 						if i in nodeWeights[yearKey]:
 							nodeWeights[yearKey][i] += 1
@@ -134,9 +134,10 @@ def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 	for yearKey in sorted(adjLists.keys()):
 		graphDict = adjLists[yearKey]
 		G = nx.from_dict_of_dicts(graphDict)
-		nx.set_node_attributes(G,'total',nodeWeights[yearKey])
+		nx.set_node_attributes(G,'weight',nodeWeights[yearKey])
 		graphsList[yearKey] = G
 	return graphsList
+	
 
 def assignPACSpartition(partitionDict, G):
 	partition = {n:0 for n in G.nodes()}
