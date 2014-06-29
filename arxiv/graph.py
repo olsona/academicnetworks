@@ -48,20 +48,20 @@ def get_adjacency_and_weights(df, what='authors', author_initials_only=False,
             if lead not in result:
                 result[lead] = {}
                 for follow in items[1:]:
-                    result[lead][follow] = {'total': 1}
+                    result[lead][follow] = {'weight': 1}
             else:
                 for follow in items[1:]:
                     if follow not in result[lead]:
-                        result[lead][follow] = {'total': 1}
+                        result[lead][follow] = {'weight': 1}
                     else:
-                        result[lead][follow]['total'] += 1
+                        result[lead][follow]['weight'] += 1
     return (result, weights)
 
 
 def create_graph(df, what):
     adjacency, weights = get_adjacency_and_weights(df, what=what)
     G = nx.from_dict_of_dicts(adjacency)
-    nx.set_node_attributes(G, 'total', weights)
+    nx.set_node_attributes(G, 'weight', weights)
     return G
 
 
