@@ -171,13 +171,12 @@ def assignPACSpartition(partitionDict, G):
 	return partition
 	
 
-def plotDynamicGraphs(graphsDict, stat, xlim, ylim, xlabel, ylabel, title, outFile):
+def plotDynamicGraphsSubject(graphsDict, stat, xlim, ylim, xlabel, ylabel, title, outFile):
 	import matplotlib.pyplot as plt
 	import matplotlib.colors as colors
 	import matplotlib.cm as cmx
 	#initialize
 	plt.clf()
-	fig = plt.figure()
 	ax = plt.subplot(111)
 	
 	#colors
@@ -205,6 +204,44 @@ def plotDynamicGraphs(graphsDict, stat, xlim, ylim, xlabel, ylabel, title, outFi
 	box = ax.get_position()
 	ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
 	ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+	ax.set_xlabel(xlabel)
+	ax.set_ylabel(ylabel)
+	ax.set_xlim(xlim[0],xlim[1])
+	ax.set_ylim(ylim[0],ylim[1])
+	plt.title(title)
+	plt.savefig(outFile)
+			
+
+def plotDynamicGraphsSingle(graphsDict, stat, xlim, ylim, xlabel, ylabel, title, outFile):
+	import matplotlib.pyplot as plt
+	import matplotlib.colors as colors
+	import matplotlib.cm as cmx
+	#initialize
+	plt.clf()
+	ax = plt.subplot(111)
+	
+	#colors
+	cm = plt.get_cmap('jet')
+	cNorm  = colors.Normalize(vmin=0, vmax=100)
+	scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
+	
+	#stats
+	statf = stat
+	if stat in ['best_modularity_num','best_modularity_val']:
+		statf = 'best_modularity'
+	x = []
+	y = []		
+	for year in sorted(graphsDict[statf].keys()):
+		x.append(year)
+		if stat == 'best_modularity_num':
+			y.append(graphsDict['best_modularity'][year][1])
+		elif stat == 'best_modularity_val':
+			y.append(graphsDict['best_modularity'][year][0])
+		else:
+			y.append(graphsDict[subj][statf][year])
+	colorVal = scalarMap.to_rgba(subj)
+	ax.plot(x,y,label=subj,color=colorVal)
+	box = ax.get_position()
 	ax.set_xlabel(xlabel)
 	ax.set_ylabel(ylabel)
 	ax.set_xlim(xlim[0],xlim[1])
