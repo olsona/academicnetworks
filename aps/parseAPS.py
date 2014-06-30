@@ -203,3 +203,33 @@ def dois2ilocs(df):
 		doi = row['doi']
 		result[doi] = index
 	return result
+	
+	
+def entropy(freqDict):
+	import math
+	total = sum(freqDict.values())
+	H = 0.0
+	for f in freqDict.values():
+		if f > 0:
+			p = float(f)/float(total)
+			H += p * math.log(p,10)
+	return H*(-1.0)
+	
+	
+def getCommonPACS(pacsFreqDict):
+	best = ''
+	num = 0
+	for p in pacsFreqDict.keys():
+		if pacsFreqDict[p] > num:
+			num = pacsFreqDict[p]
+			best = p
+	return best 
+	
+
+def isPACSpresent(pacsFreqDict, pacsList):
+	presence = False
+	for p in pacsList:
+		if p in pacsFreqDict.keys():
+			presence = True
+			break
+	return presence

@@ -39,6 +39,7 @@ def getAdjListBipartite(df, authorInitialsOnly=False, subsetPACS=None, subsetYea
 	sp = subsetPACS
 	sy = subsetYears
 	nodeWeights = {}
+	authorList = []
 	for index, row in df.iterrows():
 		auths = parseAPS.getAuthors(row, authorInitialsOnly=aio, subsetPACS=sp, subsetYears=sy)
 		pacs = parseAPS.getPACS(row, subsetPACS=sp, subsetYears=sy)
@@ -50,7 +51,7 @@ def getAdjListBipartite(df, authorInitialsOnly=False, subsetPACS=None, subsetYea
 						resultDict[a][p] = {'weight': 1}
 				else:
 					for p in pacs:
-						if p not in result[a]:
+						if p not in resultDict[a]:
 							resultDict[a][p] = {'weight': 1}
 						else:
 							resultDict[a][p]['weight'] += 1
@@ -59,14 +60,35 @@ def getAdjListBipartite(df, authorInitialsOnly=False, subsetPACS=None, subsetYea
 					nodeWeights[a] += 1
 				else:
 					nodeWeights[a] = 1
+				authorList.append(a)
 			for p in pacs:
 				if p in nodeWeights:
 					nodeWeights[p] += 1
 				else:
 					nodeWeights[p] = 1
 				
-	return resultDict, nodeWeights
+	return resultDict, nodeWeights, authorList
 
+
+def getAuthorPacInfo(bipartiteDict, authorList):
+	G = nx.from_dict_of_dicts(bipartiteDict)
+	authorInfo = {a:{'pacsList':{},'entropy':0.0} for a in authorList}
+	for a in authorList:
+		subjectList = G.neighbors(a)
+		subjectFreq3 = {subj:G[a][subj]['weight'] for subj in subjectList}
+		subjectFreq2 = {p:0 for p in range(0,100,10)}
+		for s in subjectFreq3.keys():
+			n = subjectFreq3[s]
+			p = (s/10)*10
+			if p in subjectFreq2.keys():
+				subjectFreq2[p] += n
+			else:
+				subjectFreq2[p] = n
+		entropy = parseAPS.entropy(subjectFreq2)
+		authorInfo[a]['entropy'] = entropy
+		authorInfo[a]['pacsList'] = subjectFreq2
+	return authorInfo
+	
 
 def makeGraph(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None, what=['authors']):
 	aio = authorInitialsOnly
@@ -147,3 +169,46 @@ def assignPACSpartition(partitionDict, G):
 			if n in part:
 				partition[n] = p
 	return partition
+	
+
+def plotDynamicGraphs(graphsDict, stat, xlim, ylim, xlabel, ylabel, title, outFile):
+	import matplotlib.pyplot as plt
+	import matplotlib.colors as colors
+	import matplotlib.cm as cmx
+	#initialize
+	plt.clf()
+	fig = plt.figure()
+	ax = plt.subplot(111)
+	
+	#colors
+	cm = plt.get_cmap('jet')
+	cNorm  = colors.Normalize(vmin=0, vmax=100)
+	scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
+	
+	#stats
+	statf = stat
+	if stat in ['best_modularity_num','best_modularity_val']:
+		statf = 'best_modularity'
+	for subj in sorted(graphsDict.keys()):
+		x = []
+		y = []
+		for year in sorted(graphsDict[subj][statf].keys()):
+			x.append(year)
+			if stat == 'best_modularity_num':
+				y.append(graphsDict[subj]['best_modularity'][year][1])
+			elif stat == 'best_modularity_val':
+				y.append(graphsDict[subj]['best_modularity'][year][0])
+			else:
+				y.append(graphsDict[subj][statf][year])
+		colorVal = scalarMap.to_rgba(subj)
+		ax.plot(x,y,label=subj,color=colorVal)
+	box = ax.get_position()
+	ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+	ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+	ax.set_xlabel(xlabel)
+	ax.set_ylabel(ylabel)
+	ax.set_xlim(xlim[0],xlim[1])
+	ax.set_ylim(ylim[0],ylim[1])
+	plt.title(title)
+	plt.savefig(outFile)
+			
