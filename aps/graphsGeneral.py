@@ -12,11 +12,12 @@ def getStats(graphDict, stats=None):
 		for s in statsDict:
 			#print "Working on {!s} for {!s}".format(s, k)
 			if s in ['betweenness_centrality','eigenvector_centrality','edge_betweenness']:
-				try:
-					res = statsTable[s](G,weight='total')
-				except:
-					print s, k
-					res = None
+				#try:
+				#	res = statsTable[s](G,weight='weight')
+				#except:
+				#	print s, k
+				#	res = None
+				res = statsTable[s](G,weight='weight')
 			elif s in ['best_modularity']:
 				try:
 					part = statsTable[s](G)
