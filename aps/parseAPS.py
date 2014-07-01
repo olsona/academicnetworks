@@ -1,21 +1,30 @@
 from collections import OrderedDict
 
 def xml2pickle(infile,outfile):
+	'''Takes an APS metadata xml file (infile), 
+	and writes a Pandas DataFrame to outfile'''
 	import pandas as pd
 	import xmltodict
 	import cPickle as pickle
 
 	# read and process infile
 	f = open(infile,'r')
-	d = xmltodict.parse(f)
-	df = pd.DataFrame(d['articles']['article'])
-	df = df.dropna(subset=['authgrp','pacs'])
-	pickle.dump(df,open(outfile,'wb'))
+	d = xmltodict.parse(f) #parse xml file as a dictionary
+	df = pd.DataFrame(d['articles']['article']) # turns it into a Data Frame
+	df = df.dropna(subset=['authgrp','pacs']) # drops useless rows
+	pickle.dump(df,open(outfile,'wb')) # saves it
 
 
 def getAuthors(row, authorInitialsOnly=False, subsetPACS=None, subsetYears=None):
-	# subsetYears first looks at the received date, and if that data isn't available, then at published date, and then at revised date.
-	authgrp = row['authgrp'] 
+	'''Returns author information for an input row
+	If authorInitialsOnly = True, then store first and middle initials instead of full names
+	subsetPACS, if not None, is a list of PACS codes that we care about; 
+		if the row doesn't contain any of the PACS codes we care about, then we return nothing.
+	subsetYears, if not None, is a list of years we care about.'''
+	
+	authgrp = row['authgrp'] # get author information
+	
+	# check to see if we want this row, given subsetPACS and subsetYears
 	goodP = 0
 	goodY = 0
 	if subsetYears:
@@ -34,6 +43,8 @@ def getAuthors(row, authorInitialsOnly=False, subsetPACS=None, subsetYears=None)
 			goodP = 1
 	else:
 		goodP = 1
+	
+	# if the row is good, then we process the authors and return them
 	if goodP and goodY:
 		authorList = processAuthors(authgrp, authorInitialsOnly)
 	else:
@@ -42,8 +53,10 @@ def getAuthors(row, authorInitialsOnly=False, subsetPACS=None, subsetYears=None)
 	
 	
 def getAuthorsYears(row, authorInitialsOnly=False, subsetPACS=None):
-	# subsetYears first looks at the received date, and if that data isn't available, then at published date, and then at revised date.
-	authgrp = row['authgrp'] 
+	'''Like getAuthors, but also returns the year'''
+	
+	authgrp = row['authgrp'] # get info
+	# check if the row is good accoring to subsetPACS
 	goodP = 0
 	year = getYear(row)
 	if subsetPACS:
@@ -56,6 +69,8 @@ def getAuthorsYears(row, authorInitialsOnly=False, subsetPACS=None):
 			goodP = 1
 	else:
 		goodP = 1
+		
+	# if good, return information
 	if goodP:
 		authorList = processAuthors(authgrp, authorInitialsOnly)
 	else:
@@ -64,6 +79,7 @@ def getAuthorsYears(row, authorInitialsOnly=False, subsetPACS=None):
 	
 
 def processAuthors(authgrp, authorInitialsOnly=False):
+	'''Process the authgrp value from the DF row.  Massive pain, do not try to read.'''
 	from collections import OrderedDict
 	authorList = []
 	if type(authgrp) is OrderedDict:
@@ -107,6 +123,11 @@ def processAuthors(authgrp, authorInitialsOnly=False):
 	
 
 def getPACS(row, subsetPACS=None, subsetYears=None):
+	'''Get a list of PACS codes in a row.
+	If subsetPACS is None, return all PACS codes.  
+		Otherwise, only return those codes in subsetPACS.
+	If subsetYears is None, return as usual.
+		Otherwise, only return the PACS codes if the year falls within subsetYears.'''
 	paperPacs = convertPACS(row['pacs']['pacscode'])
 	goodY = 0
 	if subsetYears:
@@ -130,6 +151,7 @@ def getPACS(row, subsetPACS=None, subsetYears=None):
 
 
 def getPACSYears(row, subsetPACS=None):
+	'''Like getPACS, but returns PACS codes and year.'''
 	paperPacs = convertPACS(row['pacs']['pacscode'])
 	year = getYear(row)
 		
@@ -145,6 +167,10 @@ def getPACSYears(row, subsetPACS=None):
 
 
 def convertPACS(pacsList,pacsLevel=2):
+	'''Converts all codes in a given pacsList to the appropriate level of detail.
+	pacsLevel = 1 means that 45.10.Db will go to 40.
+	pacsLevel = 2 means that 45.10.Db will go to 45.
+	pacsLevel = 3 means that 45.10.Db will stay the same.'''
 	if type(pacsList) is not list:
 		pacsList = [pacsList]
 	if pacsLevel == 1:
@@ -170,6 +196,8 @@ def convertPACS(pacsList,pacsLevel=2):
 
 
 def getYear(row):
+	'''Return the year corresponding to a given row.
+	First checks for received date, then for published date, and finally revised date.'''
 	hist = row['history']
 	if type(hist) is OrderedDict:
 		if 'received' in hist.keys():			 
@@ -186,6 +214,7 @@ def getYear(row):
 
 
 def reverseCitingCited(infile, outfile):
+	'''Reverses the order of citing/cited pairs in APS citation data.'''
 	fIn = open(infile,'r')
 	fOut = open(outfile, 'w')
 	l = fIn.readline().rstrip()
@@ -198,6 +227,7 @@ def reverseCitingCited(infile, outfile):
 
 
 def dois2ilocs(df):
+	'''Returns a dictionary where the key is the doi and the value is the articles location in the dataframe.'''
 	result = {}
 	for index, row in df.iterrows():
 		doi = row['doi']
@@ -206,6 +236,10 @@ def dois2ilocs(df):
 	
 	
 def entropy(freqDict):
+	'''Computes the standard formula for entropy.
+	Note that a paper can have more than one subject, 
+		so the total is not the number of papers, 
+		but the total number of subject entries.'''
 	import math
 	total = sum(freqDict.values())
 	H = 0.0
@@ -217,6 +251,7 @@ def entropy(freqDict):
 	
 	
 def getCommonPACS(pacsFreqDict):
+	'''Gets the most common PACS in a frequency dictionary.'''
 	best = ''
 	num = 0
 	for p in pacsFreqDict.keys():
@@ -227,6 +262,7 @@ def getCommonPACS(pacsFreqDict):
 	
 
 def isPACSpresent(pacsFreqDict, pacsList):
+	'''Checks to see whether any elements in pacsList is in the pacsFreqDict.'''
 	presence = False
 	for p in pacsList:
 		if p in pacsFreqDict.keys():
