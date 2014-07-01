@@ -15,6 +15,7 @@ def getStats(graphDict, stats=None):
 				try:
 					res = statsTable[s](G,weight='total')
 				except:
+					print s, k
 					res = None
 			elif s in ['best_modularity']:
 				try:
@@ -24,11 +25,13 @@ def getStats(graphDict, stats=None):
 					res = [mod,num]
 					#print res
 				except:
+					print s,k
 					res = [None, None]
 			else:
 				try:
 					res = statsTable[s](G)
 				except:
+					print s,k
 					res = None
 			statsDict[s][k] = res
 		print k
