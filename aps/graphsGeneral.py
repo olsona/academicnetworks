@@ -47,7 +47,7 @@ statsTable = {'edges':nx.number_of_edges,
 			'best_modularity':community.best_partition,
 			'degree_centrality':nx.degree_centrality,
 			'betweenness_centrality':nx.betweenness_centrality,
-			'eigenvector_centrality':nx.eigenvector_centrality,
+			'eigenvector_centrality':nx.eigenvector_centrality_numpy,
 			'density':nx.density,
 			'edge_betweenness':nx.edge_betweenness_centrality
 			}
