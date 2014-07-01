@@ -110,7 +110,7 @@ def plotDynamicGraphsSubject(graphsDict, stat, xlim, ylim, xlabel, ylabel, title
 	plt.savefig(outFile)
 			
 
- def plotDynamicGraphsSingle(graphsDict, stat, xlim, ylim, xlabel, ylabel, title, outFile):
+def plotDynamicGraphsSingle(graphsDict, stat, xlim, ylim, xlabel, ylabel, title, outFile):
 	'''Takes a dictionary of graph statistics, where the first level keys are statistics and the second level are years. 
 	This dictionary is produced by getStats.
 	The argument stat can be any key in statsTable.
