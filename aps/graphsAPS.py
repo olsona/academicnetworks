@@ -141,7 +141,7 @@ def makeGraph(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None, w
 		
 		
 def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=None, startYear=1982, endYear=2007, window=5):
-	'''Creates a dictionary of dictionaries in order to make graphs, where each dictionary is made using getAdjListSimple.  
+	'''Creates a dictionary of dictionaries in order to make graphs, where each dictionary is made using getAdjListSimple.	
 	The keys of the dictionary are years from startYear to endYear, and the values are the graph dictionaries.
 	If window=1, the graph only considers papers from a single year.
 	If window=3, the graph considers papers from year-1, year, and year+1.
