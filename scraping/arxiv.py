@@ -9,11 +9,11 @@ import os
 import pandas as pd
 
 
-class Scraper(object):
+class ArxivScraper(object):
     """OAI scraper for arXiv metadata"""
     def __init__(self, metadataPrefix='arXiv',
                  base_url='http://export.arxiv.org/oai2'):
-        super(Scraper, self).__init__()
+        super(ArxivScraper, self).__init__()
         from sickle import Sickle
         self.sickle = Sickle(base_url)
         self.records = self.sickle.ListRecords(metadataPrefix=metadataPrefix)
