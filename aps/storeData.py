@@ -8,28 +8,32 @@ def makeCSV(entropyStats, dynamicStats, yearRange, outFile):
 	fOut.write(";".join("Eigen_{!s}".format(y) for y in yearRange)+";")
 	#fOut.write(";".join("Betweenness_{!s}".format(y) for y in yearRange)+"\n")
 	
-	# write out data for each author
+	# get data for each author
 	authorList = entropyStats.keys()
+	authorDict = [a:{'entropy':0.0,
+					'pacsNum':0,
+					'totals':{y:0 for y in yearRange},
+					'eigenvector_centrality':{y:0.0 for y in yearRange}
+					}]
 	print len(authorList)
 	ct = 0
-	for author in authorList:
-		if ct%10 == 0:
-			print ct
-			
-		entropy = entropyStats[author]['entropy']
-		numPacs = entropyStats[author]['pacsNum']
-		fOut.write("{!s};{:.5e};{:.5e}".format(author,entropy,numPacs))
+	
+	for author in entropyStats.keys():
+		authorDict[author]['entropy'] = entropyStats[author]['entropy']
+		authorDict[author]['pacsNum'] = entropyStats[author]['pacsNum']
+	
+	for y in yearRange:
+		for author in dynamicStats['node_weight'][y].keys()
+			authorDict[author]['totals'][y] = dynamicStats['node_weight'][y][author]
+			authorDict[author]['eigenvector_centrality'][y] = dynamicStats['eigenvector_centrality'][y][author]
+	
+	for author in authorDict:
+		fOut.write("{!s};{:.5e};{:.5e}".format(author,authorDict[author]['entropy'],authorDict[author]['numPacs']))
 		for y in yearRange:
-			if author in dynamicStats['node_weight'][y].keys():
-				val = dynamicStats['node_weight'][y][author]
-			else:
-				val = 0.0
+			val = authorDict[author]['totals'][y]
 			fOut.write(";{:.5e}".format(val))
 		for y in yearRange:
-			if author in dynamicStats['eigenvector_centrality'][y].keys():
-				val = dynamicStats['eigenvector_centrality'][y][author]
-			else:
-				val = 0.0
+			val = authorDict[author]['eigenvector_centrality'][y]
 			fOut.write(";{:.5e}".format(val))
 		fOut.write("\n")
 		ct += 1
