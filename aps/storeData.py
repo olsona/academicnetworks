@@ -10,11 +10,7 @@ def makeCSV(entropyStats, dynamicStats, yearRange, outFile):
 	
 	# get data for each author
 	authorList = entropyStats.keys()
-	authorDict = [a:{'entropy':0.0,
-					'pacsNum':0,
-					'totals':{y:0 for y in yearRange},
-					'eigenvector_centrality':{y:0.0 for y in yearRange}
-					}]
+	authorDict = [a:{'entropy':0.0,'pacsNum':0,'totals':{y:0 for y in yearRange},'eigenvector_centrality':{y:0.0 for y in yearRange}}]
 	print len(authorList)
 	ct = 0
 	
