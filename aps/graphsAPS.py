@@ -1,6 +1,5 @@
 import parseAPS
 import networkx as nx
-import community
 
 def getAdjListSimple(df, what='authors', authorInitialsOnly=False, subsetPACS=None, subsetYears=None):
 	'''Builds a dictionary of edges (and a list of node weights) from a given data frame df.
@@ -94,7 +93,7 @@ def getAuthorPacsInfo(bipartiteDict, authorList):
 		and the value is another dictionary storing entropy information 
 		and the full list of subjects and their frequencies.'''
 	G = nx.from_dict_of_dicts(bipartiteDict)
-	authorInfo = {a:{'pacsList':{},'entropy':0.0} for a in authorList}
+	authorInfo = {a:{'pacsList':{},'pacsNum':0,'entropy':0.0} for a in authorList}
 	for a in authorList:
 		subjectList = G.neighbors(a)
 		subjectFreq3 = {subj:G[a][subj]['weight'] for subj in subjectList}
@@ -107,8 +106,13 @@ def getAuthorPacsInfo(bipartiteDict, authorList):
 			else:
 				subjectFreq2[p] = n
 		entropy = parseAPS.entropy(subjectFreq2)
+		pacsNum = 0
+		for s in subjectFreq2.keys():
+			if subjectFreq2[s] > 0:
+				pacsNum += 1
 		authorInfo[a]['entropy'] = entropy
 		authorInfo[a]['pacsList'] = subjectFreq2
+		authorInfo[a]['pacsNum'] = pacsNum
 	return authorInfo 
 	
 
