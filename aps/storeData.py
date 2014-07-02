@@ -5,7 +5,7 @@ def makeCSV(entropyStats, dynamicStats, yearRange, outFile):
 	fOut = open(outFile,'w')
 	fOut.write("Author_name;Entropy;Num_Subjects;")
 	fOut.write(";".join("Total_{!s}".format(y) for y in yearRange)+";")
-	fOut.write(";".join("Eigen_{!s}".format(y) for y in yearRange)+";")
+	fOut.write(";".join("Eigen_{!s}".format(y) for y in yearRange)+"\n")
 	#fOut.write(";".join("Betweenness_{!s}".format(y) for y in yearRange)+"\n")
 	
 	# get data for each author
@@ -37,7 +37,8 @@ def makeCSV(entropyStats, dynamicStats, yearRange, outFile):
 				authorDict[author]['totals'][y] = dynamicStats['node_weight'][y][author]
 				authorDict[author]['eigenvector_centrality'][y] = dynamicStats['eigenvector_centrality'][y][author]
 			ct += 1
-				
+	
+	print ct, len(authorList), len(authorDict)			
 	
 	for author in authorDict:
 		fOut.write("{!s};{:.5e};{:.5e}".format(author,authorDict[author]['entropy'],authorDict[author]['pacsNum']))
