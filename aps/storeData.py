@@ -23,7 +23,7 @@ def makeCSV(entropyStats, dynamicStats, yearRange, outFile):
 		authorDict[author]['pacsNum'] = entropyStats[author]['pacsNum']
 	
 	for y in yearRange:
-		for author in dynamicStats['node_weight'][y].keys()
+		for author in dynamicStats['node_weight'][y].keys():
 			authorDict[author]['totals'][y] = dynamicStats['node_weight'][y][author]
 			authorDict[author]['eigenvector_centrality'][y] = dynamicStats['eigenvector_centrality'][y][author]
 	
