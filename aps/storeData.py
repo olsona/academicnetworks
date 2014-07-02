@@ -27,21 +27,24 @@ def makeCSV(entropyStats, dynamicStats, yearRange, outFile):
 			try:
 				authorDict[author]['totals'][y] = dynamicStats['node_weight'][y][author]
 				authorDict[author]['eigenvector_centrality'][y] = dynamicStats['eigenvector_centrality'][y][author]
-			except:
-				pass
+			except KeyError:
+				authorDict[author]={'entropy':0.0,
+				'pacsNum':0,
+				'totals':{y:0 for y in yearRange},
+				'eigenvector_centrality':{y:0.0 for y in yearRange}}
+				authorDict[author]['totals'][y] = dynamicStats['node_weight'][y][author]
+				authorDict[author]['eigenvector_centrality'][y] = dynamicStats['eigenvector_centrality'][y][author]
+				
 	
 	for author in authorDict:
-		try:
-			fOut.write("{!s};{:.5e};{:.5e}".format(author,authorDict[author]['entropy'],authorDict[author]['numPacs']))
-			for y in yearRange:
-				val = authorDict[author]['totals'][y]
-				fOut.write(";{:.5e}".format(val))
-			for y in yearRange:
-				val = authorDict[author]['eigenvector_centrality'][y]
-				fOut.write(";{:.5e}".format(val))
-			fOut.write("\n")
-			ct += 1
-		except:
-			pass
+		fOut.write("{!s};{:.5e};{:.5e}".format(author,authorDict[author]['entropy'],authorDict[author]['numPacs']))
+		for y in yearRange:
+			val = authorDict[author]['totals'][y]				
+			fOut.write(";{:.5e}".format(val))
+		for y in yearRange:
+			val = authorDict[author]['eigenvector_centrality'][y]
+			fOut.write(";{:.5e}".format(val))
+		fOut.write("\n")
+		ct += 1
 	
 	fOut.close()
