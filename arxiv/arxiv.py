@@ -73,7 +73,7 @@ def get_categories(row, subset_categories=None):
     return cats
 
 
-def get_author_series(df):
+def get_author_series(df, initials_only=False):
     """
     Return a pandas Series with author names as the index, containing
     total papers per author
@@ -82,7 +82,7 @@ def get_author_series(df):
     author_counter = {}
 
     for index, row in df.iterrows():
-        authors = get_authors(row)
+        authors = get_authors(row, initials_only=initials_only)
         if authors:
             for a in authors:
                 if a in author_counter:
@@ -93,11 +93,11 @@ def get_author_series(df):
     return pd.Series(author_counter)
 
 
-def get_all_authors(df):
+def get_all_authors(df, initials_only=False):
     """Returns the set of all authors found in `df`."""
     authors = set()
     for index, row in df.iterrows():
-        a = get_authors(row)
+        a = get_authors(row, initials_only=initials_only)
         if a:
             for i in a:
                 authors.add(i)

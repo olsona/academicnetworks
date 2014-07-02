@@ -82,15 +82,15 @@ def getAdjListBipartite(df, authorInitialsOnly=False, subsetPACS=None, subsetYea
 					nodeWeights[p] += 1
 				else:
 					nodeWeights[p] = 1
-				
+
 	return resultDict, nodeWeights, authorList
 
 
 def getAuthorPacsInfo(bipartiteDict, authorList):
 	'''Gets a dictionary of PACS information for each author in a bipartite dictionary.
 	authorList is the list of authors, so we do not bother with PACS information.
-	Returns a dictionary where each key is an author name, 
-		and the value is another dictionary storing entropy information 
+	Returns a dictionary where each key is an author name,
+		and the value is another dictionary storing entropy information
 		and the full list of subjects and their frequencies.'''
 	G = nx.from_dict_of_dicts(bipartiteDict)
 	authorInfo = {a:{'pacsList':{},'pacsNum':0,'entropy':0.0} for a in authorList}
@@ -114,12 +114,11 @@ def getAuthorPacsInfo(bipartiteDict, authorList):
 		authorInfo[a]['pacsList'] = subjectFreq2
 		authorInfo[a]['pacsNum'] = pacsNum
 	return authorInfo 
-	
 
 def makeGraph(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None, what=['authors']):
 	'''Actually builds a networkx graph, using the helper functions.
-	what: the nodes you want to look at.  
-		If what = ['authors'], the nodes are authors.  
+	what: the nodes you want to look at.
+		If what = ['authors'], the nodes are authors.
 		If what = ['pacs'], the nodes are PACS codes.
 		If what = ['authors','pacs'], the resulting graph is a bipartite graph with author and PACS nodes.
 	authorInitialsOnly: boolean indicating whether you want to only save the first and middle initials, or the full names.
@@ -142,10 +141,10 @@ def makeGraph(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None, w
 		return G
 	else:
 		return None
-		
-		
+
+
 def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=None, startYear=1982, endYear=2007, window=5):
-	'''Creates a dictionary of dictionaries in order to make graphs, where each dictionary is made using getAdjListSimple.	
+	'''Creates a dictionary of dictionaries in order to make graphs, where each dictionary is made using getAdjListSimple.
 	The keys of the dictionary are years from startYear to endYear, and the values are the graph dictionaries.
 	If window=1, the graph only considers papers from a single year.
 	If window=3, the graph considers papers from year-1, year, and year+1.
@@ -184,8 +183,8 @@ def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 						else:
 							nodeWeights[yearKey][i] = 1
 	return resultsDict, nodeWeights
-	
-	
+
+
 def makeDynamicGraphs(df, what='authors', authorInitialsOnly=False, subsetPACS=None, startYear=1982, endYear=2008, window=5):
 	'''Actually makes the graphs - this is what you run if you want a list of graphs.
 	Produces a dictionary where the keys are years and the values are graphs.

@@ -12,7 +12,7 @@ def getStats(graphDict, stats=None):
 	if not stats:
 		stats = ['edges','nodes','degree_assortativity','components',\
 			'best_modularity','degree_centrality','betweenness_centrality',\
-			'eigenvector_centrality','density','edge_betweenness']
+			'eigenvector_centrality','density','edge_betweenness','node_weight']
 	statsDict = {s:{k:None for k in graphDict.keys()} for s in stats}
 	for k in graphDict.keys():
 		G = graphDict[k]
@@ -45,6 +45,13 @@ def getStats(graphDict, stats=None):
 		print k
 	return statsDict
 	
+
+def getNodeWeights(G):
+	res = {n:0 for n in G.nodes()}
+	for n in G.nodes():
+		res[n] = G.node[n]['weight']
+	return res
+
 	
 #because dispatch tables are cool
 statsTable = {'edges':nx.number_of_edges,
@@ -56,8 +63,10 @@ statsTable = {'edges':nx.number_of_edges,
 			'betweenness_centrality':nx.betweenness_centrality,
 			'eigenvector_centrality':nx.eigenvector_centrality_numpy,
 			'density':nx.density,
-			'edge_betweenness':nx.edge_betweenness_centrality
+			'edge_betweenness':nx.edge_betweenness_centrality,
+			'node_weight':getNodeWeights,
 			}
+	
 	
 def plotDynamicGraphsSubject(graphsDict, stat, xlim, ylim, xlabel, ylabel, title, outFile):
 	'''Takes a dictionary of dictionaries of graph statistics, where the first level keys are subjects, and
