@@ -1,7 +1,7 @@
 import networkx as nx
 import community
 
-def getStats(graphDict, stats=None):
+def getStatsDynamic(graphDict, stats=None):
 	'''Produces statistics for a dictionary of dictionaries of graphs.
 	Meant to be used for a dictionary of dynamic graphs.
 	graphDict is a dictionary where the keys can be anything you want, but probably should be subjects.
@@ -13,17 +13,11 @@ def getStats(graphDict, stats=None):
 		stats = ['edges','nodes','degree_assortativity','components',\
 			'best_modularity','degree_centrality','betweenness_centrality',\
 			'eigenvector_centrality','density','edge_betweenness','node_weight']
-	statsDict = {s:{k:None for k in graphDict.keys()} for s in stats}
-	for k in graphDict.keys():
-		G = graphDict[k]
-		for s in statsDict:
-			#print "Working on {!s} for {!s}".format(s, k)
+	statsDict = {y:{s:{} for s in stats} for y in graphDict.keys()}	# y == year
+	for y in graphDict.keys():
+		G = graphDict[y]
+		for s in stats:
 			if s in ['betweenness_centrality','eigenvector_centrality','edge_betweenness']:
-				#try:
-				#	res = statsTable[s](G,weight='weight')
-				#except:
-				#	print s, k
-				#	res = None
 				res = statsTable[s](G,weight='weight')
 			elif s in ['best_modularity']:
 				try:
@@ -33,16 +27,16 @@ def getStats(graphDict, stats=None):
 					res = [mod,num]
 					#print res
 				except:
-					print s,k
+					print s,y
 					res = [None, None]
 			else:
 				try:
 					res = statsTable[s](G)
 				except:
-					print s,k
+					print s,y
 					res = None
-			statsDict[s][k] = res
-		print k
+			statsDict[y][s] = res
+		print y	
 	return statsDict
 	
 

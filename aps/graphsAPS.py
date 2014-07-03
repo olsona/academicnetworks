@@ -115,6 +115,7 @@ def getAuthorPacsInfo(bipartiteDict, authorList):
 		authorInfo[a]['pacsNum'] = pacsNum
 	return authorInfo 
 
+
 def makeGraph(df, authorInitialsOnly=False, subsetPACS=None, subsetYears=None, what=['authors']):
 	'''Actually builds a networkx graph, using the helper functions.
 	what: the nodes you want to look at.
@@ -152,6 +153,7 @@ def getDynamicNetwork(df, what='authors', authorInitialsOnly=False, subsetPACS=N
 	Make sure that startYear and endYear are set appropriately for the window; the bottom limit is 1980, and the top is 2010.'''
 	diam = window/2
 	yearSet = {y:range(y-diam,y+diam+1) for y in range(startYear,endYear+1)}
+	print yearSet
 	resultsDict = {y:{} for y in yearSet}
 	nodeWeights = {y:{} for y in yearSet}
 	aio = authorInitialsOnly
