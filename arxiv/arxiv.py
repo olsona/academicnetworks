@@ -94,6 +94,9 @@ def get_author_series(df, initials_only=False, extended_info=False):
     ipp_curr = {}
     sjr_curr = {}
     snip_curr = {}
+    ipp_pub = {}
+    sjr_pub = {}
+    snip_pub = {}
 
     CURR = '2013'
 
@@ -122,6 +125,9 @@ def get_author_series(df, initials_only=False, extended_info=False):
                     _add(ipp_curr, a, row[CURR + ' IPP'])
                     _add(sjr_curr, a, row[CURR + ' SJR'])
                     _add(snip_curr, a, row[CURR + ' SNIP'])
+                    _add(ipp_pub, a, row['Publication IPP'])
+                    _add(sjr_pub, a, row['Publication SJR'])
+                    _add(snip_pub, a, row['Publication SNIP'])
 
 
     count = pd.Series(author_counter)
@@ -134,6 +140,9 @@ def get_author_series(df, initials_only=False, extended_info=False):
         result[CURR + ' IPP'] = pd.Series(ipp_curr).map(np.nanmean)
         result[CURR + ' SJR'] = pd.Series(sjr_curr).map(np.nanmean)
         result[CURR + ' SNIP'] = pd.Series(snip_curr).map(np.nanmean)
+        result['Publication IPP'] = pd.Series(ipp_pub).map(np.nanmean)
+        result['Publication SJR'] = pd.Series(sjr_pub).map(np.nanmean)
+        result['Publication SNIP'] = pd.Series(snip_pub).map(np.nanmean)
     else:
         result = count
 
