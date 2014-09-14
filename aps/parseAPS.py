@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 def xml2pickle(infile,outfile):
-	'''Takes an APS metadata xml file (infile), 
+	'''Takes an APS metadata xml file (infile),
 	and writes a Pandas DataFrame to outfile'''
 	import pandas as pd
 	import xmltodict
@@ -18,12 +18,12 @@ def xml2pickle(infile,outfile):
 def getAuthors(row, authorInitialsOnly=False, subsetPACS=None, subsetYears=None):
 	'''Returns author information for an input row
 	If authorInitialsOnly = True, then store first and middle initials instead of full names
-	subsetPACS, if not None, is a list of PACS codes that we care about; 
+	subsetPACS, if not None, is a list of PACS codes that we care about;
 		if the row doesn't contain any of the PACS codes we care about, then we return nothing.
 	subsetYears, if not None, is a list of years we care about.'''
-	
+
 	authgrp = row['authgrp'] # get author information
-	
+
 	# check to see if we want this row, given subsetPACS and subsetYears
 	goodP = 0
 	goodY = 0
@@ -43,18 +43,18 @@ def getAuthors(row, authorInitialsOnly=False, subsetPACS=None, subsetYears=None)
 			goodP = 1
 	else:
 		goodP = 1
-	
+
 	# if the row is good, then we process the authors and return them
 	if goodP and goodY:
 		authorList = processAuthors(authgrp, authorInitialsOnly)
 	else:
 		authorList = []
 	return authorList
-	
-	
+
+
 def getAuthorsYears(row, authorInitialsOnly=False, subsetPACS=None):
 	'''Like getAuthors, but also returns the year'''
-	
+
 	authgrp = row['authgrp'] # get info
 	# check if the row is good accoring to subsetPACS
 	goodP = 0
@@ -69,14 +69,14 @@ def getAuthorsYears(row, authorInitialsOnly=False, subsetPACS=None):
 			goodP = 1
 	else:
 		goodP = 1
-		
+
 	# if good, return information
 	if goodP:
 		authorList = processAuthors(authgrp, authorInitialsOnly)
 	else:
 		authorList = []
 	return [year, authorList]
-	
+
 
 def processAuthors(authgrp, authorInitialsOnly=False):
 	'''Process the authgrp value from the DF row.  Massive pain, do not try to read.'''
@@ -120,11 +120,11 @@ def processAuthors(authgrp, authorInitialsOnly=False):
 			for al in alist:
 				authorList.append(al)
 	return authorList
-	
+
 
 def getPACS(row, subsetPACS=None, subsetYears=None):
 	'''Get a list of PACS codes in a row.
-	If subsetPACS is None, return all PACS codes.  
+	If subsetPACS is None, return all PACS codes.
 		Otherwise, only return those codes in subsetPACS.
 	If subsetYears is None, return as usual.
 		Otherwise, only return the PACS codes if the year falls within subsetYears.'''
@@ -136,7 +136,7 @@ def getPACS(row, subsetPACS=None, subsetYears=None):
 			goodY = 1
 	else:
 		goodY = 1
-		
+
 	if subsetPACS and goodY:
 		goodList = []
 		for pp in paperPacs:
@@ -146,7 +146,7 @@ def getPACS(row, subsetPACS=None, subsetYears=None):
 		goodList = paperPacs
 	else:
 		goodList = []
-		
+
 	return goodList
 
 
@@ -154,7 +154,7 @@ def getPACSYears(row, subsetPACS=None):
 	'''Like getPACS, but returns PACS codes and year.'''
 	paperPacs = convertPACS(row['pacs']['pacscode'])
 	year = getYear(row)
-		
+
 	if subsetPACS:
 		goodList = []
 		for pp in paperPacs:
@@ -162,7 +162,7 @@ def getPACSYears(row, subsetPACS=None):
 				goodList.append(pp)
 	else:
 		goodList = paperPacs
-	
+
 	return [year, goodList]
 
 
@@ -200,8 +200,8 @@ def getYear(row):
 	First checks for received date, then for published date, and finally revised date.'''
 	hist = row['history']
 	if type(hist) is OrderedDict:
-		if 'received' in hist.keys():			 
-			year = int(hist['received']['@date'].split("-")[0])			   
+		if 'received' in hist.keys():
+			year = int(hist['received']['@date'].split("-")[0])
 			return year
 		elif 'published' in hist.keys():
 			year = int(hist['published']['@date'].split("-")[0])
@@ -233,12 +233,12 @@ def dois2ilocs(df):
 		doi = row['doi']
 		result[doi] = index
 	return result
-	
-	
-def entropy(freqDict):
+
+
+def entropy(freqDict, log_base=10):
 	'''Computes the standard formula for entropy.
-	Note that a paper can have more than one subject, 
-		so the total is not the number of papers, 
+	Note that a paper can have more than one subject,
+		so the total is not the number of papers,
 		but the total number of subject entries.'''
 	import math
 	total = sum(freqDict.values())
@@ -246,10 +246,10 @@ def entropy(freqDict):
 	for f in freqDict.values():
 		if f > 0:
 			p = float(f)/float(total)
-			H += p * math.log(p,10)
+			H += p * math.log(p, log_base)
 	return H*(-1.0)
-	
-	
+
+
 def getCommonPACS(pacsFreqDict):
 	'''Gets the most common PACS in a frequency dictionary.'''
 	best = ''
@@ -258,8 +258,8 @@ def getCommonPACS(pacsFreqDict):
 		if pacsFreqDict[p] > num:
 			num = pacsFreqDict[p]
 			best = p
-	return best 
-	
+	return best
+
 
 def isPACSpresent(pacsFreqDict, pacsList):
 	'''Checks to see whether any elements in pacsList is in the pacsFreqDict.'''

@@ -63,12 +63,14 @@ def get_authors(row, initials_only=False, subset_categories=None):
     return authors
 
 
-def get_categories(row, subset_categories=None):
+def get_categories(row, subset_categories=None, toplevel=False):
     """Get all categories for a given row (paper)"""
     try:
         cats = row.categories.split('|')
         if subset_categories:
             cats = [c for c in cats if c in subset_categories]
+        if toplevel:
+            cats = [c.split('.')[0] for c in cats]
     except AttributeError:
         return None  # TODO should log this
     return cats

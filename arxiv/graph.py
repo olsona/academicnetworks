@@ -64,14 +64,15 @@ def get_adjacency_and_weights(df, what='authors', author_initials_only=False,
 
 
 def get_adjacency_and_weights_bipartite(df, author_initials_only=False,
-                                        subset_categories=None):
+                                        subset_categories=None,
+                                        toplevel=False):
     result = {}
     weights = {}
     authorlist = []
     for index, row in df.iterrows():
         auths = arxiv.get_authors(row, author_initials_only,
                                   subset_categories)
-        cats = arxiv.get_categories(row, subset_categories)
+        cats = arxiv.get_categories(row, subset_categories, toplevel)
         if auths and cats:  # Skip this row if items is None
             # Add to node weights dict (`weights`)
             for a in auths:
